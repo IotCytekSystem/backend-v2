@@ -2,10 +2,8 @@ package com.cytek2.cytek.audit.listeners;
 
 import com.cytek2.cytek.audit.model.EnergyData;
 import com.cytek2.cytek.audit.model.Meter;
-import com.cytek2.cytek.audit.model.User;
 import com.cytek2.cytek.audit.repository.EnergyDataRepository;
 import com.cytek2.cytek.audit.repository.MeterRepository;
-import com.cytek2.cytek.audit.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.*;
@@ -18,31 +16,93 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
-public class EnergyMeterListener implements MqttCallback {
+public class EnergyMeterListener {
 
     private final EnergyDataRepository energyDataRepository;
-
     private final MeterRepository meterRepository;
+    private final MqttClient mqttClient;
+    private final ExecutorService executorService;
 
     @Autowired
-    public EnergyMeterListener(MqttClient mqttClient, EnergyDataRepository energyDataRepository, UserRepository userRepository, MeterRepository meterRepository) {
+    public EnergyMeterListener(EnergyDataRepository energyDataRepository, MeterRepository meterRepository) throws MqttException {
         this.energyDataRepository = energyDataRepository;
-
         this.meterRepository = meterRepository;
-        mqttClient.setCallback(this);
-        // Subscribe to the appropriate topic(s)
-        try {
-            mqttClient.subscribe("device/E3276B0D/realtime");
-        } catch (MqttException e) {
-            e.printStackTrace();
+        this.mqttClient = new MqttClient("tcp://mqtt.iammeter.com:1883", "EnergyMeterListener");
+        this.executorService = Executors.newCachedThreadPool();
+
+        // Connect to MQTT broker
+        connectToMqttBroker();
+
+        // Subscribe to meter topics
+        subscribeToMeterTopics();
+    }
+
+    private void connectToMqttBroker() throws MqttException {
+        MqttConnectOptions connectOptions = new MqttConnectOptions();
+        connectOptions.setUserName("meter_002"); // Set your MQTT broker username
+        connectOptions.setPassword("20232023".toCharArray()); // Set your MQTT broker password
+
+        connectOptions.setCleanSession(true);
+        mqttClient.connect(connectOptions);
+    }
+
+    private void subscribeToMeterTopics() {
+        // Fetch all serial numbers from the database
+        List<String> serialNumbers = meterRepository.findAllSerialNumbers();
+
+        for (String serialNumber : serialNumbers) {
+            executorService.submit(() -> {
+                int maxAttempts = 1;
+                int attempt = 0;
+                boolean subscribed = false;
+
+                // Inside the subscribeToMeterTopics() method
+                while (!subscribed && attempt < maxAttempts) {
+                    try {
+                        String topic = "device/" + serialNumber + "/realtime";
+                        mqttClient.subscribe(topic, new IMqttMessageListener() {
+                            @Override
+                            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                                // This callback is invoked when a message is received on the subscribed topic
+                                handleMessage(topic, message); // Call handleMessage with the received message
+                            }
+                        });
+                        System.out.println("Subscribed to topic: " + topic);
+                        subscribed = true; // Successfully subscribed
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                        System.err.println("Failed to subscribe to topic: " + serialNumber);
+
+                        // Implement a backoff delay before retrying
+                        try {
+                            Thread.sleep(2000); // Sleep for 2 seconds before retrying
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                        }
+
+                        attempt++; // Increment the retry attempt
+                    }
+                }
+
+
+                if (!subscribed) {
+                    // If not subscribed after maxAttempts, continue with other meters
+                    System.err.println("Moving to the next serial number: " + serialNumber);
+                }
+            });
         }
     }
 
-    @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
+
+
+
+    public void handleMessage(String topic, MqttMessage message) throws Exception {
         String data = new String(message.getPayload(), StandardCharsets.UTF_8);
         System.out.println("Received message on topic '" + topic + "': " + data);
 
@@ -51,17 +111,27 @@ public class EnergyMeterListener implements MqttCallback {
             JsonNode jsonNode = objectMapper.readTree(data);
             // Get the serial number from the incoming data
             String serialNumber= String.valueOf(jsonNode.get("SN"));
-            if (serialNumber !=null)
-            {
-                System.out.println("smart meter serial number extracted from data: "+serialNumber);
+            if (serialNumber != null) {
+                System.out.println("Smart meter serial number extracted from data: " + serialNumber);
 
-                System.out.println("started looking for data in meter table using meter serial number:" + serialNumber);
-                Optional<Optional<Meter>> meter = Optional.ofNullable(meterRepository.findBySerialNumber(serialNumber));
-                System.out.println("data from smart meter: "+meter);
+                System.out.println("Started looking for data in meter table using meter serial number: " + serialNumber);
 
+                // Add debug statement
+                Optional<Meter> meterOptional = meterRepository.findBySerialNumber(serialNumber);
+                System.out.println("Query result: " + meterOptional);
+
+                Meter meter = meterOptional.orElse(null);
+
+                if (meter != null) {
+                    System.out.println("Data from smart meter: " + meter);
+
+                    // ... Rest of your code for data extraction and saving
+
+                } else {
+                    System.out.println("Meter not found for serial number: " + serialNumber);
+                    // Handle the case when the meter is not found
+                }
             }
-
-
             // Extract values
             double redVoltage = jsonNode.get("Datas").get(0).get(0).asDouble();
             double yellowVoltage = jsonNode.get("Datas").get(1).get(0).asDouble();
@@ -156,7 +226,7 @@ public class EnergyMeterListener implements MqttCallback {
         }
     }
 
-    @Override
+
     public void connectionLost(Throwable cause) {
         // Handle connection loss
         System.out.println("Connection to the smart meter lost: " + cause.getMessage());
@@ -171,15 +241,16 @@ public class EnergyMeterListener implements MqttCallback {
         }
     }
 
-    @Override
+
     public void deliveryComplete(IMqttDeliveryToken token) {
         // Handle message delivery (QoS 1 and 2)
     }
 
 
 
-
-
-
-
+    public void shutdown() throws MqttException {
+        mqttClient.disconnect();
+        mqttClient.close();
+        executorService.shutdown();
+    }
 }

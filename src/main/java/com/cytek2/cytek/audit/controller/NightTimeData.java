@@ -22,8 +22,6 @@ public class NightTimeData {
     // Endpoint to get daytime data
     @GetMapping("/night-time-data")
     public ResponseEntity<String> getDaytimeData() {
-
-
         try {
             List<EnergyData> daytimeData = energyDataRepository.findNighttimeData();
 

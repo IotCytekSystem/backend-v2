@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/meters")
+@RequestMapping("/api")
 public class MeterController {
 
     private final MeterRepository meterRepository;
@@ -22,21 +22,21 @@ public class MeterController {
     }
 
     // API to add a new meter
-    @PostMapping("/add")
+    @PostMapping("/meters/add")
     public ResponseEntity<Meter> addMeter(@RequestBody Meter newMeter) {
         Meter savedMeter = meterRepository.save(newMeter);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedMeter);
     }
 
     // API to view all meters
-    @GetMapping("/all")
+    @GetMapping("/meters")
     public ResponseEntity<List<Meter>> getAllMeters() {
         List<Meter> meters = meterRepository.findAll();
         return ResponseEntity.ok(meters);
     }
 
     // API to view a meter by ID
-    @GetMapping("/{meterId}")
+    @GetMapping("/meters/{meterId}")
     public ResponseEntity<Meter> getMeterById(@PathVariable Long meterId) {
         Optional<Meter> optionalMeter = meterRepository.findById(meterId);
         if (optionalMeter.isPresent()) {
@@ -47,7 +47,7 @@ public class MeterController {
     }
 
     // API to delete a meter by ID
-    @DeleteMapping("/{meterId}")
+    @DeleteMapping("/meters/{meterId}")
     public ResponseEntity<Void> deleteMeter(@PathVariable Long meterId) {
         Optional<Meter> optionalMeter = meterRepository.findById(meterId);
         if (optionalMeter.isPresent()) {
@@ -58,7 +58,7 @@ public class MeterController {
     }
 
     // API to update a meter by ID
-    @PutMapping("/{meterId}")
+    @PutMapping("/meters/{meterId}")
     public ResponseEntity<Meter> updateMeter(@PathVariable Long meterId, @RequestBody Meter updatedMeter) {
         Optional<Meter> optionalMeter = meterRepository.findById(meterId);
         if (optionalMeter.isPresent()) {

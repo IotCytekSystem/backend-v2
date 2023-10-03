@@ -15,10 +15,11 @@ import java.util.Optional;
 public interface MeterRepository extends JpaRepository<Meter, Long> {
 
 
-    @Query("SELECT m FROM Meter m WHERE m.serialNumber = :serialNumber")
     Optional<Meter> findBySerialNumber(@Param("serialNumber") String serialNumber);
 
     static List<Meter> findByUserId(int intExact) {
         return null;
     }
+    @Query("SELECT m.serialNumber FROM Meter m")
+    List<String> findAllSerialNumbers();
 }

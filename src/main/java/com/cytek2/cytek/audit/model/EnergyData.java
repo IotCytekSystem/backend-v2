@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "energy")
+
 public class EnergyData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
