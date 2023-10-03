@@ -65,8 +65,16 @@ public interface EnergyDataRepository extends JpaRepository<EnergyData, Long> {
     @Query("SELECT p.redPower FROM EnergyData p ORDER BY p.time DESC ")
     Double getCurrentRedPower();
 
-    @Query("SELECT p FROM EnergyData p ORDER BY p.time DESC ")
+    @Query("SELECT p FROM EnergyData p ORDER BY p.time DESC")
     List<EnergyData> getRealtimeData();
 
-    List<EnergyData> findByUserId(Long userId);
+    List<EnergyData> findByUserId(Integer user_id);
+
+    // Custom query to fetch daytime data
+    @Query("SELECT e FROM EnergyData e WHERE FUNCTION('HOUR', e.time) >= 6 AND FUNCTION('HOUR', e.time) < 18")
+    List<EnergyData> findDaytimeData();
+
+    @Query("SELECT e FROM EnergyData e WHERE FUNCTION('HOUR', e.time) >= 18 OR FUNCTION('HOUR', e.time) < 6")
+    List<EnergyData> findNighttimeData();
+
 }

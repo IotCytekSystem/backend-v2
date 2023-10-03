@@ -133,7 +133,10 @@ public class EnergyDataService {
         List<Double> allHighestPowers = Arrays.asList(highestRedPower, highestYellowPower, highestBluePower);
         Double overallHighestPower = allHighestPowers.stream().filter(Objects::nonNull).max(Double::compareTo).orElse(null);
 
-        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, overallHighestPower);
+        // Calculate the sum of the three highest powers
+        double sumOfHighestPowers =highestRedPower + highestYellowPower + highestBluePower;
+
+        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, sumOfHighestPowers);
     }
 
     public List<EnergyData> getAllEnergyDataByUserId(long clientID) {

@@ -49,6 +49,18 @@ public class EnergyMeterListener implements MqttCallback {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode jsonNode = objectMapper.readTree(data);
+            // Get the serial number from the incoming data
+            String serialNumber= String.valueOf(jsonNode.get("SN"));
+            if (serialNumber !=null)
+            {
+                System.out.println("smart meter serial number extracted from data: "+serialNumber);
+
+                System.out.println("started looking for data in meter table using meter serial number:" + serialNumber);
+                Optional<Optional<Meter>> meter = Optional.ofNullable(meterRepository.findBySerialNumber(serialNumber));
+                System.out.println("data from smart meter: "+meter);
+
+            }
+
 
             // Extract values
             double redVoltage = jsonNode.get("Datas").get(0).get(0).asDouble();
@@ -80,67 +92,62 @@ public class EnergyMeterListener implements MqttCallback {
             double blueFactor = jsonNode.get("Datas").get(2).get(6).asDouble();
 
             // Get the serial number from the incoming data
-            String extractedSerialNumber= String.valueOf(jsonNode.get("SN"));
-            String serialNumber = extractedSerialNumber.trim();
-            System.out.println("smart meter serial number extracted from data: "+serialNumber);
+//            String extractedSerialNumber= String.valueOf(jsonNode.get("SN"));
+//            String serialNumber = extractedSerialNumber.trim();
+//            System.out.println("smart meter serial number extracted from data: "+serialNumber);
+//
+//            System.out.println("started looking for data in meter table using meter serial number:" + serialNumber);
+//            Optional<Optional<Meter>> meter = Optional.ofNullable(meterRepository.findBySerialNumber(serialNumber));
+//            System.out.println("data from smart meter: "+meter);
+            System.out.println("started looking for user in the meter table...");
+            //User user = meter.get().getUser(); // Get the User object from the Meter
+            System.out.println("user from smart meter: ");
 
-            if (serialNumber != null) {
-                System.out.println("started looking for data in meter table using meter serial number:"+serialNumber);
-                Optional<Optional<Meter>> meter = Optional.ofNullable(meterRepository.findBySerialNumber(serialNumber));
-                System.out.println("data from smart meter: "+meter);
-                System.out.println("started looking for user in the meter table...");
-                //User user = meter.get().getUser(); // Get the User object from the Meter
-                System.out.println("user from smart meter: ");
-
-                // Create an EnergyData entity and set the extracted values
-                EnergyData energyData = new EnergyData();
-                energyData.setRedVoltage(redVoltage);
-                energyData.setYellowVoltage(yellowVoltage);
-                energyData.setBlueVoltage(blueVoltage);
-                energyData.setRedCurrent(redCurrent);
-                energyData.setYellowCurrent(yellowCurrent);
-                energyData.setBlueCurrent(blueCurrent);
-                energyData.setRedPower(redPower);
-                energyData.setYellowPower(yellowPower);
-                energyData.setBluePower(bluePower);
-                energyData.setRedPowerConsumption(redPowerConsumption);
-                energyData.setYellowPowerConsumption(yellowPowerConsumption);
-                energyData.setBluePowerConsumption(bluePowerConsumption);
-                energyData.setRedExportedEnergy(redExportedEnergy);
-                energyData.setYellowExportedEnergy(yellowExportedEnergy);
-                energyData.setBlueExportedEnergy(blueExportedEnergy);
-                energyData.setRedFrequency(redFrequency);
-                energyData.setYellowFrequency(yellowFrequency);
-                energyData.setBlueFrequency(blueFrequency);
-                energyData.setRedPowerFactor(redFactor);
-                energyData.setYellowPowerFactor(yellowFactor);
-                energyData.setBluePowerFactor(blueFactor);
-
-
-                // Set the date to the current date
-                LocalDate currentDate = LocalDate.now();
-                energyData.setDate(Date.valueOf(currentDate));
-
-                // Set the current day (day of the week)
-                String currentDay = currentDate.getDayOfWeek().name();
-                energyData.setDay(currentDay);
+            // Create an EnergyData entity and set the extracted values
+            EnergyData energyData = new EnergyData();
+            energyData.setRedVoltage(redVoltage);
+            energyData.setYellowVoltage(yellowVoltage);
+            energyData.setBlueVoltage(blueVoltage);
+            energyData.setRedCurrent(redCurrent);
+            energyData.setYellowCurrent(yellowCurrent);
+            energyData.setBlueCurrent(blueCurrent);
+            energyData.setRedPower(redPower);
+            energyData.setYellowPower(yellowPower);
+            energyData.setBluePower(bluePower);
+            energyData.setRedPowerConsumption(redPowerConsumption);
+            energyData.setYellowPowerConsumption(yellowPowerConsumption);
+            energyData.setBluePowerConsumption(bluePowerConsumption);
+            energyData.setRedExportedEnergy(redExportedEnergy);
+            energyData.setYellowExportedEnergy(yellowExportedEnergy);
+            energyData.setBlueExportedEnergy(blueExportedEnergy);
+            energyData.setRedFrequency(redFrequency);
+            energyData.setYellowFrequency(yellowFrequency);
+            energyData.setBlueFrequency(blueFrequency);
+            energyData.setRedPowerFactor(redFactor);
+            energyData.setYellowPowerFactor(yellowFactor);
+            energyData.setBluePowerFactor(blueFactor);
 
 
+            // Set the date to the current date
+            LocalDate currentDate = LocalDate.now();
+            energyData.setDate(Date.valueOf(currentDate));
 
-                // Set the time to the current time
-                LocalTime currentTime = LocalTime.now();
-                energyData.setTime(Time.valueOf(currentTime));
+            // Set the current day (day of the week)
+            String currentDay = currentDate.getDayOfWeek().name();
+            energyData.setDay(currentDay);
 
-                // Set user and meter IDs in the energy data entity
+
+            // Set the time to the current time
+            LocalTime currentTime = LocalTime.now();
+            energyData.setTime(Time.valueOf(currentTime));
+
+            // Set user and meter IDs in the energy data entity
 //                energyData.setUser(user);
 
-                System.out.println("Data to be saved: " + energyData);
-                // Save the entity to the database
-                energyDataRepository.save(energyData);
-                System.out.println("Data saved: " + energyData);
-            } else {
-                System.out.println("Meter not found for the provided serial number.");
-            }
+            System.out.println("Data to be saved: " + energyData);
+            // Save the entity to the database
+            energyDataRepository.save(energyData);
+            System.out.println("Data saved: " + energyData);
 
 
         } catch (IOException e) {

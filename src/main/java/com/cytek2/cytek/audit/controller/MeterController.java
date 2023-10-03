@@ -1,51 +1,78 @@
 package com.cytek2.cytek.audit.controller;
 
 import com.cytek2.cytek.audit.model.Meter;
-import com.cytek2.cytek.audit.services.service.MeterService;
+import com.cytek2.cytek.audit.repository.MeterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/meters")
 public class MeterController {
 
-    private final MeterService meterService;
+    private final MeterRepository meterRepository;
 
     @Autowired
-    public MeterController(MeterService meterService) {
-        this.meterService = meterService;
+    public MeterController(MeterRepository meterRepository) {
+        this.meterRepository = meterRepository;
     }
 
-    @GetMapping("/meters")
-    public List<Meter> getAllMeters() {
-
-        return meterService.getAllMeters();
+    // API to add a new meter
+    @PostMapping("/add")
+    public ResponseEntity<Meter> addMeter(@RequestBody Meter newMeter) {
+        Meter savedMeter = meterRepository.save(newMeter);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMeter);
     }
 
-    @GetMapping("/meters/{id}")
-    public ResponseEntity<Meter> getMeterById(@PathVariable Long id) {
-        return meterService.getMeterById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // API to view all meters
+    @GetMapping("/all")
+    public ResponseEntity<List<Meter>> getAllMeters() {
+        List<Meter> meters = meterRepository.findAll();
+        return ResponseEntity.ok(meters);
     }
 
-    @PostMapping("meters/add")
-    public Meter addMeter(@RequestBody Meter meter) {
-        return meterService.addMeter(meter);
+    // API to view a meter by ID
+    @GetMapping("/{meterId}")
+    public ResponseEntity<Meter> getMeterById(@PathVariable Long meterId) {
+        Optional<Meter> optionalMeter = meterRepository.findById(meterId);
+        if (optionalMeter.isPresent()) {
+            Meter meter = optionalMeter.get();
+            return ResponseEntity.ok(meter);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @PutMapping("/meters/{id}")
-    public ResponseEntity<Meter> updateMeter(@PathVariable Long id, @RequestBody Meter updatedMeter) {
-        Meter meter = meterService.updateMeter(id, updatedMeter);
-        return ResponseEntity.ok(meter);
+    // API to delete a meter by ID
+    @DeleteMapping("/{meterId}")
+    public ResponseEntity<Void> deleteMeter(@PathVariable Long meterId) {
+        Optional<Meter> optionalMeter = meterRepository.findById(meterId);
+        if (optionalMeter.isPresent()) {
+            meterRepository.deleteById(meterId);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/meters/{id}")
-    public ResponseEntity<Void> deleteMeter(@PathVariable Long id) {
-        meterService.deleteMeter(id);
-        return ResponseEntity.noContent().build();
+    // API to update a meter by ID
+    @PutMapping("/{meterId}")
+    public ResponseEntity<Meter> updateMeter(@PathVariable Long meterId, @RequestBody Meter updatedMeter) {
+        Optional<Meter> optionalMeter = meterRepository.findById(meterId);
+        if (optionalMeter.isPresent()) {
+            Meter meter = optionalMeter.get();
+
+            // Update meter properties here based on the updatedMeter object
+            // For example:
+            // meter.setMacAddress(updatedMeter.getMacAddress());
+            // meter.setSerialNumber(updatedMeter.getSerialNumber());
+            // ...
+
+            Meter savedMeter = meterRepository.save(meter);
+            return ResponseEntity.ok(savedMeter);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
