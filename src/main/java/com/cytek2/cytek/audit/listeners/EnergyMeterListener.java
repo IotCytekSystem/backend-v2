@@ -18,8 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Component
 public class EnergyMeterListener {
@@ -93,7 +92,7 @@ public class EnergyMeterListener {
 
                 if (!subscribed) {
                     // If not subscribed after maxAttempts, continue with other meters
-                    System.err.println("Moving to the next serial number: " + serialNumber);
+                    System.err.println("Trying the next smart meter with serial number: " + serialNumber);
                 }
             });
         }
@@ -111,25 +110,42 @@ public class EnergyMeterListener {
             JsonNode jsonNode = objectMapper.readTree(data);
             // Get the serial number from the incoming data
             String serialNumber= String.valueOf(jsonNode.get("SN"));
+           double serialNumber2= Double.parseDouble(String.valueOf(jsonNode.get("SN")));
             if (serialNumber != null) {
                 System.out.println("Smart meter serial number extracted from data: " + serialNumber);
 
-                System.out.println("Started looking for data in meter table using meter serial number: " + serialNumber);
+                System.out.println("Started looking for data in meter table using meter serial number: " + serialNumber2);
+                Optional<Meter> id=meterRepository.findBySerialNumber(serialNumber);
+                System.out.println("Smart meter data ---: " + serialNumber2);
 
-                // Add debug statement
-                Optional<Meter> meterOptional = meterRepository.findBySerialNumber(serialNumber);
-                System.out.println("Query result: " + meterOptional);
+                ExecutorService executor = Executors.newSingleThreadExecutor();
 
-                Meter meter = meterOptional.orElse(null);
+                // Submit the task for querying meter data asynchronously
+                Future<Optional<Meter>> meterFuture = executor.submit(() -> meterRepository.findBySerialNumber(serialNumber));
 
-                if (meter != null) {
-                    System.out.println("Data from smart meter: " + meter);
+                try {
+                    // Wait for the result with a timeout of 5 seconds
+                    Optional<Meter> meterOptional = meterFuture.get(5, TimeUnit.SECONDS);
 
-                    // ... Rest of your code for data extraction and saving
+                    System.out.println("data from meter db: " + meterOptional);
 
-                } else {
-                    System.out.println("Meter not found for serial number: " + serialNumber);
-                    // Handle the case when the meter is not found
+                    Meter meter = meterOptional.orElse(null);
+
+                    if (meter != null) {
+                        System.out.println("Data from smart meter: " + meter);
+
+                        // ... Rest of your code for data extraction and saving
+                    } else {
+                        System.out.println("Meter not found for serial number: " + serialNumber);
+                        // Handle the case when the meter is not found
+                    }
+                } catch (TimeoutException e) {
+                    // Handle the case when the operation times out
+                    System.err.println("Query for meter data timed out.");
+                    // You can decide how to handle this situation, e.g., logging an error or taking other actions.
+                } finally {
+                    // Shutdown the executor
+                    executor.shutdown();
                 }
             }
             // Extract values
