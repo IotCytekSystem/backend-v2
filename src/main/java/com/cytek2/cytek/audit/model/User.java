@@ -26,6 +26,10 @@ public class User  {
   private String town;
   private Role role;
 
+  private String accessToken; // Add the access token field
+  private String refreshToken; // Add the refresh token field
+
+
   @OneToMany(mappedBy = "user")
   private List<Meter> meters;
 
@@ -33,6 +37,5 @@ public class User  {
   private List<EnergyData> energyDataList = new ArrayList<>();
 
 
-  public void setArchived(boolean b) {
-  }
+
 }

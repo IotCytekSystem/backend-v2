@@ -17,18 +17,20 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class UserController {
+public class ClientController {
 
     private final UserRepository userRepository;
     private final UserService userService;
-    private final EnergyDataService energyDataService;
 
     @Autowired
-    public UserController(UserRepository userRepository, UserService userService, EnergyDataService energyDataService) {
+    public ClientController(UserRepository userRepository, UserService userService, EnergyDataService energyDataService) {
         this.userRepository = userRepository;
         this.userService = userService;
-        this.energyDataService = energyDataService;
     }
+
+
+
+
 
     // API to fetch all users whose role is "client" and show their number in the DB
     @GetMapping("/clients")
