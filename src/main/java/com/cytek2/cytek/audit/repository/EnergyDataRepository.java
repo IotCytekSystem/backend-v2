@@ -28,8 +28,10 @@ public interface EnergyDataRepository extends JpaRepository<EnergyData, Long> {
     //CURRENT
     @Query("SELECT p.redCurrent FROM EnergyData p ORDER BY p.redPower DESC")
     List<Double> findHighestRedCurrent();
+
+
     @Query("SELECT p.yellowCurrent FROM EnergyData p ORDER BY p.redPower DESC")
-    List<Double> findHighesYellowCurrent();
+    List<Double> findHighestYellowCurrent();
     @Query("SELECT p.blueCurrent FROM EnergyData p ORDER BY p.redPower DESC")
     List<Double> findHighestBlueCurrent();
 
@@ -76,5 +78,6 @@ public interface EnergyDataRepository extends JpaRepository<EnergyData, Long> {
 
     @Query("SELECT e FROM EnergyData e WHERE FUNCTION('HOUR', e.time) >= 18 OR FUNCTION('HOUR', e.time) < 6")
     List<EnergyData> findNighttimeData();
+
 
 }

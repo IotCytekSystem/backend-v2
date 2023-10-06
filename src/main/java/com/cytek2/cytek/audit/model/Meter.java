@@ -1,6 +1,8 @@
 package com.cytek2.cytek.audit.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,13 +25,19 @@ public class Meter {
     private String serialNumber;
     private String version;
     private String status;
+    private String username;
+    private String password;
+    private String broker;
+    private int port;
 
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "meter", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EnergyData> energyDataList = new ArrayList<>();
 
+
+    public Meter(Long meterId) {
+    }
 }

@@ -1,17 +1,15 @@
 package com.cytek2.cytek.audit.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.util.*;
-
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class User  {
 
   @Id
@@ -30,12 +28,12 @@ public class User  {
   private String refreshToken; // Add the refresh token field
 
 
-  @OneToMany(mappedBy = "user")
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @JsonManagedReference
   private List<Meter> meters;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<EnergyData> energyDataList = new ArrayList<>();
 
 
-
+  public User(Integer userId) {
+  }
 }

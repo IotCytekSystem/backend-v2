@@ -1,6 +1,7 @@
 package com.cytek2.cytek.audit.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -92,11 +93,12 @@ public class EnergyData {
     @Column(name = "data_time")
     private Time time;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @ManyToOne
-    @JoinColumn(name = "meter_id")
-    private Meter meter;
+    @Column(name = "meter_id")
+    private Long meterId;
+
+
+
 }

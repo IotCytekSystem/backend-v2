@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,9 +26,9 @@ public class PowerController {
     }
 
     @GetMapping("/peak")
-    public ResponseEntity<List<Double>> findHighestPower() {
+    public ResponseEntity<List<List<Double>>> findHighestPower() {
         // Logic to fetch red power data from your database or source
-        List<Double> redPower = energyDataService.findHighestPower();
+        List<List<Double>> redPower = Collections.singletonList(energyDataService.findHighestPower());
         return ResponseEntity.ok(redPower);
     }
 

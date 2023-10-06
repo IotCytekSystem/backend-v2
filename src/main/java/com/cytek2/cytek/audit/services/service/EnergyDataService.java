@@ -86,60 +86,62 @@ public class EnergyDataService {
         List<Double> highestYellowPowers = energyDataRepository.findHighestYellowPower();
         List<Double> highestBluePowers = energyDataRepository.findHighestBluePower();
 
-        // Sort the power values in descending order for each category
-        highestRedPowers.sort(Collections.reverseOrder());
-        highestYellowPowers.sort(Collections.reverseOrder());
-        highestBluePowers.sort(Collections.reverseOrder());
+        // Get the first element from each list, if it exists
+        Double highestRedPower = highestRedPowers.isEmpty() ? null : highestRedPowers.get(0);
+        Double highestYellowPower = highestYellowPowers.isEmpty() ? null : highestYellowPowers.get(0);
+        Double highestBluePower = highestBluePowers.isEmpty() ? null : highestBluePowers.get(0);
 
-        // Get the top 3 power values for each category
-        List<Double> top3RedPowers = highestRedPowers.subList(0, Math.min(highestRedPowers.size(), 3));
-        List<Double> top3YellowPowers = highestYellowPowers.subList(0, Math.min(highestYellowPowers.size(), 3));
-        List<Double> top3BluePowers = highestBluePowers.subList(0, Math.min(highestBluePowers.size(), 3));
+        // Check for null values and calculate totalPower
+        double totalPower = 0.0;
+        if (highestRedPower != null) {
+            totalPower += highestRedPower;
+        }
+        if (highestYellowPower != null) {
+            totalPower += highestYellowPower;
+        }
+        if (highestBluePower != null) {
+            totalPower += highestBluePower;
+        }
 
-        // Find the highest power value among the top 3 in each category
-        Double highestRedPower = top3RedPowers.stream().max(Double::compareTo).orElse(null);
-        Double highestYellowPower = top3YellowPowers.stream().max(Double::compareTo).orElse(null);
-        Double highestBluePower = top3BluePowers.stream().max(Double::compareTo).orElse(null);
-
-        // Find the overall highest power value among the highest in each category
-        List<Double> allHighestPowers = Arrays.asList(highestRedPower, highestYellowPower, highestBluePower);
-        Double overallHighestPower = allHighestPowers.stream().filter(Objects::nonNull).max(Double::compareTo).orElse(null);
-
-        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, overallHighestPower);
+        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, totalPower);
     }
+
+
+
 
 
     public List<Double> findHighestCurrent() {
-        List<Double> highestRedPowers = energyDataRepository.findHighestRedCurrent();
-        List<Double> highestYellowPowers = energyDataRepository.findHighesYellowCurrent();
-        List<Double> highestBluePowers = energyDataRepository.findHighestBlueCurrent();
+        List<Double> highestRedCurrents = energyDataRepository.findHighestRedCurrent();
+        List<Double> highestYellowCurrents = energyDataRepository.findHighestYellowCurrent();
+        List<Double> highestBlueCurrents = energyDataRepository.findHighestBlueCurrent();
 
-        // Sort the power values in descending order for each category
-        highestRedPowers.sort(Collections.reverseOrder());
-        highestYellowPowers.sort(Collections.reverseOrder());
-        highestBluePowers.sort(Collections.reverseOrder());
+        // Get the first element from each list, if it exists
+        Double highestRedCurrent = highestRedCurrents.isEmpty() ? null : highestRedCurrents.get(0);
+        Double highestYellowCurrent = highestYellowCurrents.isEmpty() ? null : highestYellowCurrents.get(0);
+        Double highestBlueCurrent = highestBlueCurrents.isEmpty() ? null : highestBlueCurrents.get(0);
 
-        // Get the top 3 power values for each category
-        List<Double> top3RedPowers = highestRedPowers.subList(0, Math.min(highestRedPowers.size(), 3));
-        List<Double> top3YellowPowers = highestYellowPowers.subList(0, Math.min(highestYellowPowers.size(), 3));
-        List<Double> top3BluePowers = highestBluePowers.subList(0, Math.min(highestBluePowers.size(), 3));
+        // Check for null values and calculate totalCurrent
+        double totalCurrent = 0.0;
+        if (highestRedCurrent != null) {
+            totalCurrent += highestRedCurrent;
+        }
+        if (highestYellowCurrent != null) {
+            totalCurrent += highestYellowCurrent;
+        }
+        if (highestBlueCurrent != null) {
+            totalCurrent += highestBlueCurrent;
+        }
 
-        // Find the highest power value among the top 3 in each category
-        Double highestRedPower = top3RedPowers.stream().max(Double::compareTo).orElse(null);
-        Double highestYellowPower = top3YellowPowers.stream().max(Double::compareTo).orElse(null);
-        Double highestBluePower = top3BluePowers.stream().max(Double::compareTo).orElse(null);
-
-        // Find the overall highest power value among the highest in each category
-        List<Double> allHighestPowers = Arrays.asList(highestRedPower, highestYellowPower, highestBluePower);
-        Double overallHighestPower = allHighestPowers.stream().filter(Objects::nonNull).max(Double::compareTo).orElse(null);
-
-        // Calculate the sum of the three highest powers
-        double sumOfHighestPowers =highestRedPower + highestYellowPower + highestBluePower;
-
-        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, sumOfHighestPowers);
+        return Arrays.asList(highestRedCurrent, highestYellowCurrent, highestBlueCurrent, totalCurrent);
     }
+
 
     public List<EnergyData> getAllEnergyDataByUserId(long clientID) {
         return null;
     }
+
+    public List<EnergyData> dataByUserId(Integer userId) {
+        return energyDataRepository.findByUserId(userId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.cytek2.cytek.audit.repository;
 
 
+import com.cytek2.cytek.audit.dto.MeterDetails;
 import com.cytek2.cytek.audit.model.Meter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,11 +16,17 @@ import java.util.Optional;
 public interface MeterRepository extends JpaRepository<Meter, Long> {
 
 
-    Optional<Meter> findBySerialNumber(@Param("serialNumber") String serialNumber);
+    Optional<Meter> findBySerialNumber( String serialNumber);
 
     static List<Meter> findByUserId(int intExact) {
         return null;
     }
+
+    @Query("SELECT m.id, CAST(m.serialNumber AS string), m.user.id FROM Meter m")
+    List<Object[]> findMeterDetails();
+
     @Query("SELECT m.serialNumber FROM Meter m")
-    List<String> findAllSerialNumbers();
+    List<String> findSerialNumbers();
+
+
 }
