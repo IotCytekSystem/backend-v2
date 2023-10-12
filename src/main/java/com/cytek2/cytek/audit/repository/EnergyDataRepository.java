@@ -67,8 +67,9 @@ public interface EnergyDataRepository extends JpaRepository<EnergyData, Long> {
     @Query("SELECT p.redPower FROM EnergyData p ORDER BY p.time DESC ")
     Double getCurrentRedPower();
 
-    @Query("SELECT p FROM EnergyData p ORDER BY p.time DESC")
+    @Query("SELECT p FROM EnergyData p ORDER BY CONCAT(p.date, ' ', p.time) DESC")
     List<EnergyData> getRealtimeData();
+
 
     List<EnergyData> findByUserId(Integer user_id);
 

@@ -28,8 +28,8 @@ public class PowerController {
     @GetMapping("/peak")
     public ResponseEntity<List<List<Double>>> findHighestPower() {
         // Logic to fetch red power data from your database or source
-        List<List<Double>> redPower = Collections.singletonList(energyDataService.findHighestPower());
-        return ResponseEntity.ok(redPower);
+        List<Double> redPower = energyDataService.findHighestPower();
+        return ResponseEntity.ok(Collections.singletonList(redPower));
     }
 
     @GetMapping("/blue")

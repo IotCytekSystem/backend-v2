@@ -22,6 +22,7 @@ public class RealTimeDataController {
     public RealTimeDataController(EnergyDataRepository energyDataRepository) {
         this.energyDataRepository = energyDataRepository;
     }
+    
 
     @GetMapping("/data")
     public ResponseEntity<String> getRealtimeData(@RequestParam(required = false) Integer maxResults) {
