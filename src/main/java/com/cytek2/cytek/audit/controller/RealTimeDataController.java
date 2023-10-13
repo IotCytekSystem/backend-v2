@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/realtime")
@@ -22,10 +25,10 @@ public class RealTimeDataController {
     public RealTimeDataController(EnergyDataRepository energyDataRepository) {
         this.energyDataRepository = energyDataRepository;
     }
-    
+
 
     @GetMapping("/data")
-    public ResponseEntity<String> getRealtimeData(@RequestParam(required = false) Integer maxResults) {
+    public ResponseEntity<Map<String, Object>> getRealtimeData(@RequestParam(required = false) Integer maxResults) {
         try {
             List<EnergyData> realtimeData = energyDataRepository.getRealtimeData();
 
@@ -35,14 +38,49 @@ public class RealTimeDataController {
             } else {
                 // Fetch the first result from the list
                 EnergyData firstResult = realtimeData.get(0);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Define your desired date format
+                String formattedDate = dateFormat.format(firstResult.getDate());
 
-                return ResponseEntity.ok(firstResult.toString());
+// Add the formatted date to the map
+
+                // Create a map with keys and values of appropriate data types
+                Map<String, Object> dataMap = new HashMap<>();
+                dataMap.put("id", (double) firstResult.getId()); // "id" is a double
+                dataMap.put("redVoltage", firstResult.getRedVoltage());
+                dataMap.put("yellowVoltage", firstResult.getYellowVoltage());
+                dataMap.put("blueVoltage", firstResult.getBlueVoltage());
+                dataMap.put("redCurrent", firstResult.getRedCurrent());
+                dataMap.put("yellowCurrent", firstResult.getYellowCurrent());
+                dataMap.put("blueCurrent", firstResult.getBlueCurrent());
+                dataMap.put("redPower", firstResult.getRedPower());
+                dataMap.put("yellowPower", firstResult.getYellowPower());
+                dataMap.put("bluePower", firstResult.getBluePower());
+                dataMap.put("redPowerConsumption", firstResult.getRedPowerConsumption());
+                dataMap.put("yellowPowerConsumption", firstResult.getYellowPowerConsumption());
+                dataMap.put("bluePowerConsumption", firstResult.getBluePowerConsumption());
+                dataMap.put("redExportedEnergy", firstResult.getRedExportedEnergy());
+                dataMap.put("yellowExportedEnergy", firstResult.getYellowExportedEnergy());
+                dataMap.put("blueExportedEnergy", firstResult.getBlueExportedEnergy());
+                dataMap.put("redFrequency", firstResult.getRedFrequency());
+                dataMap.put("yellowFrequency", firstResult.getYellowFrequency());
+                dataMap.put("blueFrequency", firstResult.getBlueFrequency());
+                dataMap.put("redPowerFactor", firstResult.getRedPowerFactor());
+                dataMap.put("yellowPowerFactor", firstResult.getYellowPowerFactor());
+                dataMap.put("bluePowerFactor", firstResult.getBluePowerFactor());
+                dataMap.put("date", formattedDate);
+                dataMap.put("day", firstResult.getDay());
+                dataMap.put("time", firstResult.getTime());
+
+                return ResponseEntity.ok(dataMap);
             }
         } catch (IndexOutOfBoundsException e) {
             // Handle the IndexOutOfBoundsException here, e.g., return a 500 Internal Server Error response.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An internal server error occurred.");
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", 0.0); // An arbitrary double value indicating an error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMap);
         }
     }
+
 
 
 }

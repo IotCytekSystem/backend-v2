@@ -29,23 +29,31 @@ public class EnergyMeterListener {
     private final EnergyDataRepository energyDataRepository;
     private final MeterRepository meterRepository;
     private final UserRepository userRepository;
-    private final MqttClient mqttClient;
+    private  MqttClient mqttClient;
     private final ExecutorService executorService;
 
-    @Autowired
-    public EnergyMeterListener(EnergyDataRepository energyDataRepository, MeterRepository meterRepository, UserRepository userRepository) throws MqttException {
+    public EnergyMeterListener( EnergyDataRepository energyDataRepository, MeterRepository meterRepository, UserRepository userRepository) {
         this.energyDataRepository = energyDataRepository;
         this.meterRepository = meterRepository;
         this.userRepository = userRepository;
-        this.mqttClient = new MqttClient("tcp://mqtt.iammeter.com:1883", "EnergyMeterListener");
+
         this.executorService = Executors.newCachedThreadPool();
 
-        // Connect to MQTT broker
-        connectToMqttBroker();
+        try {
+            this.mqttClient = new MqttClient("tcp://mqtt.iammeter.com:1883", "EnergyMeterListener");
+            // Connect to MQTT broker
+            connectToMqttBroker();
 
-        // Subscribe to meter topics
-        subscribeToMeterTopics();
+            // Subscribe to meter topics
+            subscribeToMeterTopics();
+        } catch (MqttException e) {
+            e.printStackTrace();
+            // Handle the exception as needed, e.g., log the error or terminate the application
+        }
     }
+
+
+
 
     private void connectToMqttBroker() throws MqttException {
         MqttConnectOptions connectOptions = new MqttConnectOptions();
