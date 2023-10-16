@@ -10,6 +10,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api")
 public class PasswordResetController {
 
     private final UserRepository userRepository;
@@ -33,7 +35,7 @@ public class PasswordResetController {
         this.javaMailSender = javaMailSender;
     }
 
-    @PostMapping("/api/reset-password/request")
+    @PostMapping("/reset-password/request")
     public ResponseEntity<String> requestPasswordReset(@RequestParam("email") String email) {
         // Check if the provided email exists in the database
         Optional<User> user = userRepository.findByEmail(email);
@@ -61,7 +63,6 @@ public class PasswordResetController {
         passwordResetToken.setOtp(otp);
 // Store the token in the database
         tokenRepository.save(passwordResetToken);
-
 
         // Send the OTP to the user's email
         try {

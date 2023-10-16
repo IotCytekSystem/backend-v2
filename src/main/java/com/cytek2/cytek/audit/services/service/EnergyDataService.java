@@ -7,10 +7,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Data
@@ -81,30 +78,28 @@ public class EnergyDataService {
 
 
 
-    public List<Double> findHighestPower() {
+    public Map<String, Double> findHighestPower() {
         List<Double> highestRedPowers = energyDataRepository.findHighestRedPower();
         List<Double> highestYellowPowers = energyDataRepository.findHighestYellowPower();
         List<Double> highestBluePowers = energyDataRepository.findHighestBluePower();
 
-        // Get the first element from each list, if it exists
-        Double highestRedPower = highestRedPowers.isEmpty() ? null : highestRedPowers.get(0);
-        Double highestYellowPower = highestYellowPowers.isEmpty() ? null : highestYellowPowers.get(0);
-        Double highestBluePower = highestBluePowers.isEmpty() ? null : highestBluePowers.get(0);
+        Map<String, Double> result = new HashMap<>();
 
-        // Check for null values and calculate totalPower
-        double totalPower = 0.0;
-        if (highestRedPower != null) {
-            totalPower += highestRedPower;
-        }
-        if (highestYellowPower != null) {
-            totalPower += highestYellowPower;
-        }
-        if (highestBluePower != null) {
-            totalPower += highestBluePower;
+        if (!highestRedPowers.isEmpty()) {
+            result.put("red", highestRedPowers.get(0));
         }
 
-        return Arrays.asList(highestRedPower, highestYellowPower, highestBluePower, totalPower);
+        if (!highestYellowPowers.isEmpty()) {
+            result.put("yellow", highestYellowPowers.get(0));
+        }
+
+        if (!highestBluePowers.isEmpty()) {
+            result.put("blue", highestBluePowers.get(0));
+        }
+
+        return result;
     }
+
 
 
 
