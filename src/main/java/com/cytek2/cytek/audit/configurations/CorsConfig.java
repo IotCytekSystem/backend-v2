@@ -12,7 +12,7 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:3000"); // Replace with your allowed origins
+        config.addAllowedOrigin("http://44.208.22.32:3000/"); // Replace with your allowed origins
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
