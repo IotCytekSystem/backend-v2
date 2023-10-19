@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +26,13 @@ public class PowerController {
        List<Object[]> redPower = energyDataService.getRedPower();
         return ResponseEntity.ok(redPower);
     }
+
+    @GetMapping("/peaks/today")
+    public ResponseEntity<Map<LocalDateTime, Double>> findPeakPowerForLast24Hours() {
+        Map<LocalDateTime, Double> peakPowers = energyDataService.findPeakPowerForLast24Hours();
+        return ResponseEntity.ok(peakPowers);
+    }
+
 
     @GetMapping("/peak")
     public ResponseEntity<List<Double>> findHighestPower() {

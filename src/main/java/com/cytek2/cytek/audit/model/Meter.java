@@ -40,4 +40,8 @@ public class Meter {
 
     public Meter(Long meterId) {
     }
+
+    public static List<EnergyData> getEnergyData() {
+        return null;
+    }
 }

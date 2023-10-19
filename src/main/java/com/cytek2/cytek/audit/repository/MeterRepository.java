@@ -29,4 +29,5 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
     List<String> findSerialNumbers();
 
 
+    List<Meter> findByStatusIn(List<String> list);
 }

@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -292,11 +294,12 @@ public class EnergyMeterListener {
                             energyData.setBluePowerFactor(blueFactor);
 
 
-                            // Set the date to the current date
-                            LocalDate currentDate = LocalDate.now();
-                            energyData.setDate(Date.valueOf(currentDate));
+                        // Set the date to the current date without the time
+                        LocalDate currentDate = LocalDate.now();
+                        String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        energyData.setDate(Date.valueOf(formattedDate));
 
-                            // Set the current day (day of the week)
+                        // Set the current day (day of the week)
                             String currentDay = currentDate.getDayOfWeek().name();
                             energyData.setDay(currentDay);
 

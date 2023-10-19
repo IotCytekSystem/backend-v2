@@ -3,8 +3,11 @@ package com.cytek2.cytek.audit.repository;
 import com.cytek2.cytek.audit.model.EnergyData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -81,4 +84,6 @@ public interface EnergyDataRepository extends JpaRepository<EnergyData, Long> {
     List<EnergyData> findNighttimeData();
 
 
+    @Query("SELECT e.redPower, e.yellowPower, e.bluePower, e.time FROM EnergyData e WHERE e.time >= :start AND e.time < :end")
+    List<Object[]> findPowerDataForHour(@Param("start") Timestamp start, @Param("end") Timestamp end);
 }
