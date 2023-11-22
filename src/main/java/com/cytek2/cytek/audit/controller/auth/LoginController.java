@@ -58,7 +58,7 @@ public class LoginController {
             // Return the AuthenticationResponse as JSON along with a success message
             return ResponseEntity.ok(authenticationResponse);
         } else {
-            return ResponseEntity.badRequest().body("Wrong login Credentials!");
+            return ResponseEntity.badRequest().body("Wrong Username or password!");
         }
     }
 
