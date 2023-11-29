@@ -1,8 +1,7 @@
 package com.cytek2.cytek.audit.controller;
 
-import com.cytek2.cytek.audit.dto.RegisterRequest;
-import com.cytek2.cytek.audit.model.Meter;
-import com.cytek2.cytek.audit.model.User;
+import com.cytek2.cytek.audit.dto.AddClientRequest;
+import com.cytek2.cytek.audit.model.*;
 import com.cytek2.cytek.audit.repository.MeterRepository;
 import com.cytek2.cytek.audit.repository.UserRepository;
 import com.cytek2.cytek.audit.services.UserService;
@@ -22,10 +21,13 @@ public class ClientController {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    private final MeterRepository meterRepository;
+
     @Autowired
-    public ClientController(UserRepository userRepository, UserService userService, EnergyDataService energyDataService) {
+    public ClientController(UserRepository userRepository, UserService userService, EnergyDataService energyDataService, MeterRepository meterRepository) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.meterRepository = meterRepository;
     }
 
 
@@ -54,25 +56,12 @@ public class ClientController {
             User user = optionalUser.get();
 
             // Update 'name' field if it's provided in the request body
-            if (updatedUser.getName() != null) {
-                user.setName(updatedUser.getName());
+            if (updatedUser.getFirstname() != null) {
+                user.setFirstname(updatedUser.getFirstname());
             }
-
-            // Update 'country' field if it's provided in the request body
-            if (updatedUser.getCountry() != null) {
-                user.setCountry(updatedUser.getCountry());
+            if (updatedUser.getLastname()!= null) {
+                user.setLastname(updatedUser.getLastname());
             }
-
-            // Update 'county' field if it's provided in the request body
-            if (updatedUser.getCounty() != null) {
-                user.setCounty(updatedUser.getCounty());
-            }
-
-            // Update 'town' field if it's provided in the request body
-            if (updatedUser.getTown() != null) {
-                user.setTown(updatedUser.getTown());
-            }
-
             // Update 'email' field if it's provided in the request body
             if (updatedUser.getEmail() != null) {
                 user.setEmail(updatedUser.getEmail());
@@ -81,17 +70,30 @@ public class ClientController {
             // Update 'phone' field if it's provided in the request body
             if (updatedUser.getPhone() != null) {
                 user.setPhone(updatedUser.getPhone());
+                user.setPassword(updatedUser.getPhone());
             }
 
-            // Update 'password' field if it's provided in the request body
-            if (updatedUser.getPassword() != null) {
-                user.setPassword(updatedUser.getPassword());
+
+            // Update 'country' field if it's provided in the request body
+            if (updatedUser.getCountry() != null) {
+                user.setCountry(updatedUser.getCountry());
             }
 
-            // Update 'role' field if it's provided in the request body
-            if (updatedUser.getRole() != null) {
-                user.setRole(updatedUser.getRole());
+            // Update 'county' field if it's provided in the request body
+            if (updatedUser.getLocation() != null) {
+                user.setLocation(updatedUser.getLocation());
             }
+
+            // Update 'town' field if it's provided in the request body
+            if (updatedUser.getTown() != null) {
+                user.setTown(updatedUser.getTown());
+            }
+
+
+
+            // Update 'role' field
+                user.setRole(Role.valueOf("CLIENT"));
+
 
             // Save the updated user
             User savedUser = userRepository.save(user);
@@ -132,36 +134,51 @@ public class ClientController {
         List<Meter> meters =  MeterRepository.findByUserId(userId);
         return ResponseEntity.ok(meters);
     }
-
     @PostMapping("/clients/add")
-    public ResponseEntity<?> addUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> addUser(@RequestBody AddClientRequest addClientRequest) {
         try {
             // Check if the user with the same email already exists
-            Optional<User> existingUser = userRepository.findByEmail(registerRequest.getEmail());
+            Optional<User> existingUser = userRepository.findByEmail(addClientRequest.getEmail());
             if (existingUser.isPresent()) {
                 // Return a response indicating that the email is already taken
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
             }
 
-            // Create a new User instance and populate it with data from registerRequest
+            // Create a new User instance and populate it with data from addClientRequest
             User newUser = new User();
-            newUser.setName(registerRequest.getName());
-            newUser.setCountry(registerRequest.getCountry());
-            newUser.setCounty(registerRequest.getCounty());
-            newUser.setTown(registerRequest.getTown());
-            newUser.setEmail(registerRequest.getEmail());
-            newUser.setPhone(registerRequest.getPhone());
-            newUser.setPassword(registerRequest.getPassword());
-            newUser.setRole(registerRequest.getRole());
+            newUser.setFirstname(addClientRequest.getFirstname());
+            newUser.setLastname(addClientRequest.getLastname());
+            newUser.setEmail(addClientRequest.getEmail());
+            newUser.setPhone(addClientRequest.getPhone());
+            newUser.setCountry(addClientRequest.getCountry());
+            newUser.setTown(addClientRequest.getTown());
+            newUser.setLocation(addClientRequest.getLocation());
+            newUser.setPassword(addClientRequest.getPhone());
+            newUser.setManager(addClientRequest.getManager());
+            newUser.setMeterId(addClientRequest.getMeterId());
+            newUser.setRole(Role.valueOf("CLIENT"));
+            newUser.setUserStatus(UserStatus.valueOf("APPROVED"));
 
             // Save the user to the database
             User savedUser = userRepository.save(newUser);
+
+            if (savedUser.getMeterId() != null) {
+                Optional<Meter> optionalMeter = meterRepository.findById(Long.valueOf(savedUser.getMeterId()));
+                if (optionalMeter.isPresent()) {
+                    Meter meter = optionalMeter.get();
+                    meter.setUserId(savedUser.getId());
+                    meter.setMeterStatus(MeterStatus.ACTIVE);
+
+                    meterRepository.save(meter);
+                }
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             // Handle any unexpected exceptions or errors
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to save Client");
         }
     }
+
 }

@@ -84,6 +84,7 @@ public class EnergyData {
     @Column(name = "blue_power_factor")
     private Double bluePowerFactor;
 
+
     @Column(name = "data_date")
     private Date date;
 

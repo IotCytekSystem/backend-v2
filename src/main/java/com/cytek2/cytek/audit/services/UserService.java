@@ -1,6 +1,8 @@
 package com.cytek2.cytek.audit.services;
 
+import com.cytek2.cytek.audit.model.Role;
 import com.cytek2.cytek.audit.model.User;
+import com.cytek2.cytek.audit.model.UserStatus;
 import com.cytek2.cytek.audit.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,8 @@ public class UserService {
     }
 
     public List<User> getAllClients() {
-        return userRepository.findAll();
+
+        return userRepository.findByRoleAndUserStatus(Role.CLIENT, UserStatus.APPROVED);
     }
 
     public void deleteById(User user) {

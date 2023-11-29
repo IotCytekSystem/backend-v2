@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,19 +30,30 @@ public class Meter {
     private String password;
     private String broker;
     private int port;
+    private Integer userId;
+    private MeterType meterType;
+    private MeterCT meterCT;
 
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonBackReference
-    private User user;
+    private LocalDateTime DateTimeAdded;
+
+    @Enumerated(EnumType.STRING)
+    private MeterStatus meterStatus = MeterStatus. IDLE;
 
 
 
+
+
+    @PrePersist
+    protected void onCreate() {
+        DateTimeAdded = LocalDateTime.now();
+    }
     public Meter(Long meterId) {
     }
 
     public static List<EnergyData> getEnergyData() {
         return null;
     }
+
+
 }

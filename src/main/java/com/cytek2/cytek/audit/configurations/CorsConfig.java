@@ -12,14 +12,12 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://44.208.22.32");
-        config.addAllowedHeader("Origin");
-        config.addAllowedHeader("Content-Type");
-        config.addAllowedHeader("Accept");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("DELETE");
+        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedHeader("*");
+        config.addAllowedHeader("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
         config.setAllowCredentials(true);
         config.addExposedHeader("Access-Control-Allow-Credentials");
 

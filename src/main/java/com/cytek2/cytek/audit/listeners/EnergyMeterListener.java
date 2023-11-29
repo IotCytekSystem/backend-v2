@@ -59,8 +59,8 @@ public class EnergyMeterListener {
 
     private void connectToMqttBroker() throws MqttException {
         MqttConnectOptions connectOptions = new MqttConnectOptions();
-        connectOptions.setUserName("meter_002"); // Set your MQTT broker username
-        connectOptions.setPassword("20232023".toCharArray()); // Set your MQTT broker password
+        connectOptions.setUserName("meter_003"); // Set your MQTT broker username
+        connectOptions.setPassword("20232024".toCharArray()); // Set your MQTT broker password
 
         connectOptions.setCleanSession(true);
         mqttClient.connect(connectOptions);

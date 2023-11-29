@@ -31,7 +31,7 @@ public class LoginController {
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
+            return ResponseEntity.badRequest().body("User with the email "+request.getEmail()+" does not exists");
         }
 
         User user = optionalUser.get();
@@ -58,7 +58,7 @@ public class LoginController {
             // Return the AuthenticationResponse as JSON along with a success message
             return ResponseEntity.ok(authenticationResponse);
         } else {
-            return ResponseEntity.badRequest().body("Wrong Username or password!");
+            return ResponseEntity.badRequest().body("Ooops! Wrong Username or password!");
         }
     }
 

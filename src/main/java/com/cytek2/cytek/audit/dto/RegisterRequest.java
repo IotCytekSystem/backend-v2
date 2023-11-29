@@ -1,26 +1,23 @@
 package com.cytek2.cytek.audit.dto;
-
-import com.cytek2.cytek.audit.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.management.relation.Role;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
-public class RegisterRequest {
 
-  private String name;
-  private String email;
-  private String password;
-  private Role role;
-  private String phone;
-  private String country;
-  private String county;
-  private String town;
+public class RegisterRequest {
+  public String firstname;
+  public String lastname;
+  public String email;
+  public String password;
+  public String phone;
+
 
 }

@@ -3,6 +3,7 @@ package com.cytek2.cytek.audit.repository;
 
 import com.cytek2.cytek.audit.dto.MeterDetails;
 import com.cytek2.cytek.audit.model.Meter;
+import com.cytek2.cytek.audit.model.MeterStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +23,7 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
         return null;
     }
 
-    @Query("SELECT m.id, CAST(m.serialNumber AS string), m.user.id FROM Meter m")
+    @Query("SELECT m.id, CAST(m.serialNumber AS string) FROM Meter m")
     List<Object[]> findMeterDetails();
 
     @Query("SELECT m.serialNumber FROM Meter m")
@@ -30,4 +31,6 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
 
 
     List<Meter> findByStatusIn(List<String> list);
+
+    List<Meter> findByMeterStatus(MeterStatus meterStatus);
 }

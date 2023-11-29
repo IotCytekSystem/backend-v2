@@ -3,6 +3,7 @@ package com.cytek2.cytek.audit.controller.auth;
 import com.cytek2.cytek.audit.dto.RegisterRequest;
 import com.cytek2.cytek.audit.model.Role;
 import com.cytek2.cytek.audit.model.User;
+import com.cytek2.cytek.audit.model.UserStatus;
 import com.cytek2.cytek.audit.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class UserRegistrationController {
     }
 
 
+
     @PostMapping("/register")
     public ResponseEntity<?> addUser(@RequestBody RegisterRequest registerRequest) {
         try {
@@ -38,14 +40,13 @@ public class UserRegistrationController {
 
             // Create a new User instance and populate it with data from registerRequest
             User newUser = new User();
-            newUser.setName(registerRequest.getName());
-            newUser.setCountry(registerRequest.getCountry());
-            newUser.setCounty(registerRequest.getCounty());
-            newUser.setTown(registerRequest.getTown());
+           newUser.setFirstname(registerRequest.getFirstname());
+           newUser.setLastname(registerRequest.getLastname());
             newUser.setEmail(registerRequest.getEmail());
             newUser.setPhone(registerRequest.getPhone());
             newUser.setPassword(registerRequest.getPassword());
-            newUser.setRole(Role.valueOf("ADMIN"));
+            newUser.setRole(Role.valueOf("MANAGER"));
+            newUser.setUserStatus(UserStatus.valueOf("PENDING"));
 
             // Save the user to the database
             User savedUser = userRepository.save(newUser);
