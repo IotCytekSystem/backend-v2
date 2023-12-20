@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -86,7 +87,7 @@ public class EnergyData {
 
 
     @Column(name = "data_date")
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "data_day")
     private String day;

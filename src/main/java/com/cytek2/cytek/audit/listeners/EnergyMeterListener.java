@@ -57,14 +57,23 @@ public class EnergyMeterListener {
 
 
 
-    private void connectToMqttBroker() throws MqttException {
+    private void connectToMqttBroker() {
         MqttConnectOptions connectOptions = new MqttConnectOptions();
-        connectOptions.setUserName("meter_003"); // Set your MQTT broker username
-        connectOptions.setPassword("20232024".toCharArray()); // Set your MQTT broker password
+        connectOptions.setUserName("meter_002");
+        connectOptions.setPassword("20232023".toCharArray());
 
         connectOptions.setCleanSession(true);
-        mqttClient.connect(connectOptions);
+
+        try {
+            mqttClient.connect(connectOptions);
+            System.out.println("Connected to MQTT broker");
+        } catch (MqttException e) {
+            e.printStackTrace();
+            System.err.println("Failed to connect to MQTT broker: " + e.getMessage());
+            // Handle the exception as needed
+        }
     }
+
 
     private void subscribeToMeterTopics() {
         // Fetch all serial numbers from the database
@@ -124,13 +133,13 @@ public class EnergyMeterListener {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode jsonNode = objectMapper.readTree(data);
-            // Get the serial number from the incoming data
-            String serialNumber = String.valueOf(jsonNode.get("SN")).trim().replaceAll("^\"|\"$", "");
+            String serialNumber = jsonNode.path("SN").asText();
+
+            System.out.println("Received Serial Number: " + serialNumber);
 
             System.out.println("Started looking for data of all meters");
             List<Object[]> meterDetailsList = meterRepository.findMeterDetails();
-            System.out.println("Data = " + meterDetailsList);
-
+            System.out.println("data=");
 
             for (Object[] meterDetails : meterDetailsList) {
                 Long meterId = (Long) meterDetails[0];
@@ -147,14 +156,8 @@ public class EnergyMeterListener {
                 System.out.println("check if" +serialNumber+"="+serialNumberFromDetails);
                 if (serialNumber.equals(serialNumberFromDetails)) {
                     System.out.println("they are equal");
-
-
                     if(userId !=null){
-
-
                             System.out.println("ready to save data now after finding user and meter");
-
-
                             double redVoltage = jsonNode.get("Datas").get(0).get(0).asDouble();
                             double yellowVoltage = jsonNode.get("Datas").get(1).get(0).asDouble();
                             double blueVoltage = jsonNode.get("Datas").get(2).get(0).asDouble();
@@ -184,7 +187,7 @@ public class EnergyMeterListener {
                             double blueFactor = jsonNode.get("Datas").get(2).get(6).asDouble();
 
 
-                            System.out.println("extracting data after findign user and meter....");
+                            System.out.println("extracting data after finding user and meter....");
 
                             // Create an EnergyData entity and set the extracted values
                             EnergyData energyData = new EnergyData();
@@ -213,7 +216,7 @@ public class EnergyMeterListener {
 
                             // Set the date to the current date
                             LocalDate currentDate = LocalDate.now();
-                            energyData.setDate(Date.valueOf(currentDate));
+                            energyData.setDate(Date.valueOf(currentDate).toLocalDate());
 
                             // Set the current day (day of the week)
                             String currentDay = currentDate.getDayOfWeek().name();
@@ -297,7 +300,7 @@ public class EnergyMeterListener {
                         // Set the date to the current date without the time
                         LocalDate currentDate = LocalDate.now();
                         String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                        energyData.setDate(Date.valueOf(formattedDate));
+                        energyData.setDate(Date.valueOf(formattedDate).toLocalDate());
 
                         // Set the current day (day of the week)
                             String currentDay = currentDate.getDayOfWeek().name();

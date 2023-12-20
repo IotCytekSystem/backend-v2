@@ -5,10 +5,7 @@ import com.cytek2.cytek.audit.repository.EnergyDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -19,18 +16,16 @@ import java.util.Map;
 @RequestMapping("/api/realtime")
 public class RealTimeDataController {
 
-    private final EnergyDataRepository energyDataRepository;
-
     @Autowired
-    public RealTimeDataController(EnergyDataRepository energyDataRepository) {
-        this.energyDataRepository = energyDataRepository;
-    }
+    private  EnergyDataRepository energyDataRepository;
 
 
-    @GetMapping("/data")
-    public ResponseEntity<Map<String, Object>> getRealtimeData(@RequestParam(required = false) Integer maxResults) {
+
+
+    @GetMapping("/data/{meterId}")
+    public ResponseEntity<Map<String, Object>> getRealtimeData( @PathVariable Long meterId) {
         try {
-            List<EnergyData> realtimeData = energyDataRepository.getRealtimeData();
+            List<EnergyData> realtimeData = energyDataRepository.getRealtimeData(meterId);
 
             if (realtimeData.isEmpty()) {
                 // Handle the case where there is no data to return.
@@ -38,12 +33,9 @@ public class RealTimeDataController {
             } else {
                 // Fetch the first result from the list
                 EnergyData firstResult = realtimeData.get(0);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Define your desired date format
-                String formattedDate = dateFormat.format(firstResult.getDate());
 
-// Add the formatted date to the map
 
-                // Create a map with keys and values of appropriate data types
+                // Create a response object
                 Map<String, Object> dataMap = new HashMap<>();
                 dataMap.put("id", (double) firstResult.getId()); // "id" is a double
                 dataMap.put("redVoltage", firstResult.getRedVoltage());
@@ -67,9 +59,10 @@ public class RealTimeDataController {
                 dataMap.put("redPowerFactor", firstResult.getRedPowerFactor());
                 dataMap.put("yellowPowerFactor", firstResult.getYellowPowerFactor());
                 dataMap.put("bluePowerFactor", firstResult.getBluePowerFactor());
-                dataMap.put("date", formattedDate);
+                dataMap.put("date",firstResult.getDate());
                 dataMap.put("day", firstResult.getDay());
                 dataMap.put("time", firstResult.getTime());
+
 
                 return ResponseEntity.ok(dataMap);
             }
@@ -80,7 +73,4 @@ public class RealTimeDataController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMap);
         }
     }
-
-
-
 }

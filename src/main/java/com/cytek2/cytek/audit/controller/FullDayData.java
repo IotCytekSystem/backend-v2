@@ -1,7 +1,6 @@
 package com.cytek2.cytek.audit.controller;
 
 import com.cytek2.cytek.audit.repository.EnergyDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,21 +17,21 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-public class NightTimeData {
+public class FullDayData {
+    private final EnergyDataRepository energyDataRepository;
 
-    @Autowired
-    private  EnergyDataRepository energyDataRepository;
-
-
+    public FullDayData(EnergyDataRepository energyDataRepository) {
+        this.energyDataRepository = energyDataRepository;
+    }
 
     // DTO class to represent the response structure
     public static class DaytimeDataResponse {
         private Double red;
         private Double blue;
         private Double yellow;
-
         private Double peakCurrent;
         private Double peakPower;
+
         public DaytimeDataResponse(Double red, Double blue, Double yellow, Double peakCurrent, Double peakPower) {
             this.red = red;
             this.blue = blue;
@@ -52,8 +51,6 @@ public class NightTimeData {
         public Double getYellow() {
             return yellow;
         }
-
-
         public Double getPeakCurrent() {
             return peakCurrent;
         }
@@ -64,7 +61,7 @@ public class NightTimeData {
     }
 
     // Endpoint to get daytime data
-    @GetMapping("/night-time-data")
+    @GetMapping("/full-day-data")
     public ResponseEntity<Map<String, Double>> getDaytimeData(
             @RequestParam Long meterId,
             @RequestParam Integer userId,
@@ -73,7 +70,7 @@ public class NightTimeData {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate selectedDate = LocalDate.parse(selectedDateString, formatter);
-            List<Object[]> daytimeData = energyDataRepository.findNighttimeData(meterId, userId, selectedDate);
+            List<Object[]> daytimeData = energyDataRepository.findFullDayData(meterId, userId, selectedDate);
 
             if (daytimeData.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -105,8 +102,8 @@ public class NightTimeData {
                         (Double) data[0],  // red
                         (Double) data[1],  // blue
                         (Double) data[2],  // yellow
-                        (Double) data[3],  
-                        (Double) data[4]
+                        (Double) data[3],  // peakCurrent
+                        (Double) data[4]   // peakPower
                 ))
                 .collect(Collectors.toList());
     }

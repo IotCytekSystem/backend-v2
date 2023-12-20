@@ -23,8 +23,9 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
         return null;
     }
 
-    @Query("SELECT m.id, CAST(m.serialNumber AS string) FROM Meter m")
+    @Query("SELECT m.id, m.serialNumber,m.userId FROM Meter m")
     List<Object[]> findMeterDetails();
+
 
     @Query("SELECT m.serialNumber FROM Meter m")
     List<String> findSerialNumbers();
@@ -33,4 +34,13 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
     List<Meter> findByStatusIn(List<String> list);
 
     List<Meter> findByMeterStatus(MeterStatus meterStatus);
+
+    // Query to find meterIds based on userId from the Meter table
+    @Query("SELECT m.id FROM Meter m WHERE m.userId = :userId")
+    String findMeterIdByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT m FROM Meter m WHERE m.userId = :userId")
+    Meter findMeterByUserId(@Param("userId") Integer userId);
+
+
 }

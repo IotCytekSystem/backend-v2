@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,6 +145,8 @@ public class ClientController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
             }
 
+
+
             // Create a new User instance and populate it with data from addClientRequest
             User newUser = new User();
             newUser.setFirstname(addClientRequest.getFirstname());
@@ -178,6 +181,37 @@ public class ClientController {
             // Handle any unexpected exceptions or errors
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to save Client");
+        }
+    }
+
+    @PostMapping("/client/archive/{userId}")
+    public ResponseEntity<String> rejectUser(@PathVariable Integer userId) {
+        try {
+            // Find the user by ID
+            User user = userRepository.findById(userId).orElse(null);
+
+            if (user != null) {
+                // Update the user status to REJECTED
+                user.setUserStatus(UserStatus.ARCHIVED);
+                userRepository.save(user);
+                Meter meter = meterRepository.findMeterByUserId(userId);
+                if (meter != null) {
+                    try {
+                        // Update the Meter entity
+                        meter.setUserId(null);
+                        meter.setMeterStatus(MeterStatus.IDLE);
+                        meterRepository.save(meter);
+
+                    }
+                    catch (Exception e) {
+                    return ResponseEntity.status(500).body("meter not updated");
+                }
+
+                }
+            }
+            return ResponseEntity.ok("User Archived successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while rejecting the user");
         }
     }
 

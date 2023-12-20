@@ -6,6 +6,7 @@ import com.cytek2.cytek.audit.repository.EnergyDataRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -85,9 +86,9 @@ public class EnergyDataService {
 
 
     public Map<String, Double> findHighestPower() {
-        List<Double> highestRedPowers = energyDataRepository.findHighestRedPower();
-        List<Double> highestYellowPowers = energyDataRepository.findHighestYellowPower();
-        List<Double> highestBluePowers = energyDataRepository.findHighestBluePower();
+        List<Double> highestRedPowers = energyDataRepository.findHighestRedPower(22L);
+        List<Double> highestYellowPowers = energyDataRepository.findHighestYellowPower(22L);
+        List<Double> highestBluePowers = energyDataRepository.findHighestBluePower(22L);
 
         Map<String, Double> result = new HashMap<>();
 

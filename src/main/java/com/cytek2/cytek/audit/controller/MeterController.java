@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,5 +137,15 @@ public class MeterController {
             return ResponseEntity.ok(savedMeter);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/meters/user/{userId}")
+    public String getMeterIdByUserId(@PathVariable Integer userId) {
+        try {
+            return meterRepository.findMeterIdByUserId(userId);
+        } catch (Exception e) {
+            // Handle any exceptions (e.g., DataAccessException) and log or rethrow as needed
+            throw new RuntimeException("Error fetching meter data for user: " + userId, e);
+        }
     }
 }

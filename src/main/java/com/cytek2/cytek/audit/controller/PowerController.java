@@ -1,15 +1,16 @@
 package com.cytek2.cytek.audit.controller;
 
 import com.cytek2.cytek.audit.model.EnergyData;
+import com.cytek2.cytek.audit.repository.EnergyDataRepository;
 import com.cytek2.cytek.audit.services.service.EnergyDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ public class PowerController {
     @Autowired
     private EnergyDataService energyDataService;
 
+    @Autowired
+    private EnergyDataRepository energyDataRepository;
 
     @GetMapping("/red")
     public ResponseEntity<List<Object[]>> getRedPower() {
@@ -34,18 +37,13 @@ public class PowerController {
     }
 
 
-    @GetMapping("/peak")
-    public ResponseEntity<List<Double>> findHighestPower() {
+    // EnergyDataController.java
+    @GetMapping("/peaks")
+    public ResponseEntity<Map<String, Double>> findHighestPower() {
         // Fetch the highest power data as a Map
         Map<String, Double> highestPowerMap = energyDataService.findHighestPower();
 
-        // Extract the values from the map
-        List<Double> result = new ArrayList<>();
-        result.add(highestPowerMap.get("red"));
-        result.add(highestPowerMap.get("yellow"));
-        result.add(highestPowerMap.get("blue"));
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(highestPowerMap);
     }
 
 
@@ -63,4 +61,26 @@ public class PowerController {
      List<EnergyData> yellowPower = energyDataService.getYellowPower();
         return ResponseEntity.ok(yellowPower);
     }
+
+    @GetMapping("/peak")
+    public ResponseEntity<?> findPeakPower(@RequestParam Integer userId, @RequestParam Long meterId) {
+        try {
+            // Fetch the peak power data
+            List<Double> peakPowerList = energyDataRepository.findPeakPower(userId, meterId);
+
+            if (!peakPowerList.isEmpty()) {
+                // Extract the single element from the list
+                Double peakPower = peakPowerList.get(0);
+                return ResponseEntity.ok(peakPower);
+            } else {
+                return new ResponseEntity<>("No data found for the specified user and meter ID", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            Map<String,String> response=new HashMap<>();
+            response.put("message","Error occured while trying to fetch peak power");
+            return  ResponseEntity.ok(response);
+        }
+    }
+
+
 }
